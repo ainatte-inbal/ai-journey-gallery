@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My AI Journey</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f4f0;
+    min-height: 100vh;
+    padding: 40px;
+    color: #1a1714;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid #e0ddd6;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    aspect-ratio: 1;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.13);
+  }
+
+  .card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.55));
+    color: #fff;
+    font-size: 12px;
+    padding: 24px 12px 10px;
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+
+  .card:hover .card-label { opacity: 1; }
+
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(10,8,6,0.82);
+    backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .modal.active { display: flex; }
+
+  .modal-img-box {
+    position: relative;
+    cursor: default;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: 88vw;
+    max-height: 88vh;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    animation: pop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .modal-img-box img {
+    display: block;
+    max-width: 88vw;
+    max-height: 88vh;
+    object-fit: contain;
+  }
+
+  .modal-iframe-box {
+    position: relative;
+    cursor: default;
+    border-radius: 8px;
+    overflow: hidden;
+    width: min(1020px, 92vw);
+    height: 88vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5);
+    animation: pop 0.2s cubic-bezier(0.34,1.56,0.64,1);
+    background: #fff;
+  }
+
+  .iframe-bar {
+    background: #1a1714;
+    color: #f5f4f0;
+    padding: 9px 14px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot { width:10px; height:10px; border-radius:50%; }
+  .dot.r { background:#ff5f57; }
+  .dot.y { background:#febc2e; }
+  .dot.g { background:#28c840; }
+
+  .iframe-url {
+    flex: 1;
+    background: #2e2b28;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: #aaa;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 8px;
+  }
+
+  .modal-iframe-box iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #fff;
+  }
+
+  .iframe-blocked {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: #f9f8f6;
+    padding: 40px;
+    text-align: center;
+  }
+
+  .iframe-blocked p { color: #555; font-size: 14px; line-height: 1.6; }
+  .iframe-blocked a {
+    display: inline-block;
+    padding: 10px 22px;
+    background: #1a1714;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    transition: background 0.15s;
+  }
+  .iframe-blocked a:hover { background: #3a3430; }
+
+  .close-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 30px; height: 30px;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+    transition: background 0.15s;
+  }
+  .close-btn:hover { background: rgba(0,0,0,0.85); }
+
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.93); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  @media (max-width: 680px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>My AI Journey</h1>
+
+<div class="grid">
+  <div class="card" onclick="openImage('img1')">
+    <img src="images/img1.png" alt="Partner Integration Portal">
+    <div class="card-label">Fragmented Frameworks</div>
+  </div>
+  <div class="card" onclick="openIframe()">
+    <img src="images/img2.png" alt="Orchestra Clarity Eval">
+    <div class="card-label">Deep personas based on PRD</div>
+  </div>
+  <div class="card" onclick="openImage('img3')">
+    <img src="images/img3.png" alt="Center of Customer Obsession">
+    <div class="card-label">Aha moment - embedded knowledge</div>
+  </div>
+  <div class="card" onclick="openImage('img4')">
+    <img src="images/img4.png" alt="Research Interview">
+    <div class="card-label"></div>
+  </div>
+  <div class="card" onclick="openImage('img5')">
+    <img src="images/img5.png" alt="Ani Rak Shaela">
+    <div class="card-label">Research Repo</div>
+  </div>
+  <div class="card" onclick="openImage('img6')">
+    <img src="images/img6.png" alt="Persona Overview">
+    <div class="card-label">Cursor skill in action</div>
+  </div>
+</div>
+
+<!-- Hidden full-res image sources -->
+<div style="display:none">
+  <img id="img1" src="images/img7.png">
+  <img id="img3" src="images/img8.png">
+  <img id="img4" src="images/img9.png">
+  <img id="img5" src="images/img10.png">
+  <img id="img6" src="images/img11.png">
+</div>
+
+<!-- Image Modal -->
+<div class="modal" id="imgModal" onclick="closeAll()">
+  <div class="modal-img-box">
+    <button class="close-btn" onclick="closeAll()">✕</button>
+    <img id="modalImg" src="" alt="">
+  </div>
+</div>
+
+<!-- iFrame Modal -->
+<div class="modal" id="iframeModal" onclick="closeAll()">
+  <div class="modal-iframe-box">
+    <button class="close-btn" onclick="closeAll()">✕</button>
+    <div class="iframe-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="iframe-url">ainatte-inbal.github.io/personagenerator/partner-portal-personas.html</span>
+    </div>
+    <iframe id="modalIframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+    <div class="iframe-blocked" id="iframeBlockedMsg" style="display:none">
+      <p>This page can't be displayed in an embedded frame due to security restrictions set by the host site.</p>
+      <a href="https://ainatte-inbal.github.io/personagenerator/partner-portal-personas.html" target="_blank">Open in new tab ↗</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const IFRAME_URL = 'https://ainatte-inbal.github.io/personagenerator/partner-portal-personas.html';
+
+  function openImage(id) {
+    const src = document.getElementById(id).src;
+    document.getElementById('modalImg').src = src;
+    document.getElementById('imgModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function openIframe() {
+    const iframe = document.getElementById('modalIframe');
+    const blocked = document.getElementById('iframeBlockedMsg');
+
+    iframe.style.display = 'block';
+    blocked.style.display = 'none';
+    iframe.src = IFRAME_URL;
+
+    // Detect if iframe was blocked (load fires but content is empty or errored)
+    iframe.onerror = () => {
+      iframe.style.display = 'none';
+      blocked.style.display = 'flex';
+    };
+
+    // Fallback: after 4s if iframe has no height content, show blocked msg
+    setTimeout(() => {
+      try {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        if (!doc || doc.body.innerHTML === '') {
+          iframe.style.display = 'none';
+          blocked.style.display = 'flex';
+        }
+      } catch(e) {
+        // cross-origin — assume it loaded (CORS blocks access, not display)
+      }
+    }, 4000);
+
+    document.getElementById('iframeModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAll() {
+    document.getElementById('imgModal').classList.remove('active');
+    document.getElementById('iframeModal').classList.remove('active');
+    document.getElementById('modalIframe').src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAll(); });
+</script>
+</body>
+</html>
